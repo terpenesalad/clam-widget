@@ -1,0 +1,48 @@
+name: Build widget app
+
+on:
+  push:
+    paths:
+      - "android/**"
+      - ".github/workflows/build-widget-app.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "17"
+
+      - name: Add Outfit font
+        run: |
+          pip install fonttools
+          curl -fsSL -o Outfit.ttf "https://github.com/google/fonts/raw/main/ofl/outfit/Outfit%5Bwght%5D.ttf"
+          mkdir -p android/app/src/main/res/font
+          fonttools varLib.instancer Outfit.ttf wght=700 -o android/app/src/main/res/font/outfit_bold.ttf
+          fonttools varLib.instancer Outfit.ttf wght=500 -o android/app/src/main/res/font/outfit_medium.ttf
+
+      - uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: "8.10.2"
+
+      - name: Build app
+        run: gradle -p android assembleRelease --no-daemon
+
+      - name: Publish download
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          cp android/app/build/outputs/apk/release/app-release.apk clam-wishlists.apk
+          gh release delete widget-app --yes --cleanup-tag || true
+          gh release create widget-app clam-wishlists.apk \
+            --title "CLAM Wishlists widget" \
+            --notes "Download clam-wishlists.apk on your phone and open it to install." \
+            --latest

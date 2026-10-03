@@ -37,28 +37,18 @@ Your widget URL is:
 https://raw.githubusercontent.com/YOUR_GITHUB_NAME/clam-widget/main/data/wishlists.json
 ```
 
-## 3. Build the widget in KWGT (10 min)
+## 3. Install the widget app
 
-1. Install **KWGT Kustom Widget Maker** from the Play Store.
-2. Long-press your home screen → **Widgets** → **KWGT** → drag the **4x2** widget out.
-3. Tap the empty widget to open the editor. Pick **Create** / empty.
-4. **Background:** tap **+** → **Shape**. Set Width and Height to fill the widget,
-   Corners **14**, Color **#1F1F1F** (the same dark grey as JellyMusic's cards).
-5. Tap **+** → **Stack Group**. Inside it, set Orientation **Vertical**, Align **Left**,
-   Padding **20**, and add three **Text** items:
+GitHub builds the app for you whenever anything in the `android` folder changes.
 
-| Text item | Text (paste exactly) | Font / size | Color |
-|---|---|---|---|
-| Label | `CLAM WISHLISTS` | Outfit Bold, 11, letter spacing 2 | `#8C8C8C` |
-| Number | `$wg("YOUR_URL", json, ".total_text")$` | Outfit Bold, 52 | `#FFFFFF` |
-| Change | `[c=#F5C04A]$wg("YOUR_URL", json, ".latest_change_text")$[/c] yesterday  ·  [c=#F5C04A]$wg("YOUR_URL", json, ".week_change_text")$[/c] this week` | Outfit Medium, 12 | `#8C8C8C` |
+1. On your phone, open
+   https://github.com/terpenesalad/clam-widget/releases/latest
+2. Tap **clam-wishlists.apk** to download it, then open it.
+3. If Android asks, allow your browser to **install unknown apps**, then tap **Install**.
+4. Long-press your home screen → **Widgets** → **CLAM Wishlists** → drag it out.
 
-   The `[c=...]` bits make only the +numbers JellyMusic's warm yellow; everything
-   else stays white and grey. Outfit is in KWGT's font picker under Google Fonts.
-   If you can't find it, Montserrat is a close match.
-
-   Replace `YOUR_URL` with your widget URL from step 2.
-6. Tap **Save** (top right). Done.
+Tap the widget any time to refresh it. It also refreshes itself every few hours.
+To update the app later, install the new apk over the top of the old one.
 
 ## Good to know
 

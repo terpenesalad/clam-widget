@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">CLAM Wishlists</string>
+    <string name="widget_desc">Your CLAM Steam wishlist count</string>
+    <string name="data_url">https://raw.githubusercontent.com/terpenesalad/clam-widget/main/data/wishlists.json</string>
+</resources>
