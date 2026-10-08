@@ -2,7 +2,7 @@ name: Update CLAM wishlists
 
 on:
   schedule:
-    - cron: "17 */6 * * *"
+    - cron: "17 * * * *"  # every hour; Steam publishes yesterday's numbers once a day
   workflow_dispatch:
 
 permissions:
