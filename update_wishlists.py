@@ -17,7 +17,7 @@ from zoneinfo import ZoneInfo
 API = "https://partner.steam-api.com/IPartnerFinancialsService/GetAppWishlistReporting/v001/"
 TITLE = "CLAM WISHLISTS"
 LOCAL_TZ = ZoneInfo("Australia/Sydney")
-REFETCH_DAYS = 7  # Steam sometimes revises recent days, so re-check the last week
+REFETCH_DAYS = 30  # Steam's feed can lag its dashboard, so re-check the last month
 
 KEY = os.environ["STEAM_FINANCIAL_KEY"].strip()
 APP_ID = os.environ["STEAM_APP_ID"].strip()
