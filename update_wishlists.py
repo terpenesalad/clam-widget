@@ -69,15 +69,12 @@ def main() -> None:
     min_date = date.fromisoformat(first.get("app_min_date", yesterday.isoformat()))
 
     recent_cutoff = yesterday - timedelta(days=REFETCH_DAYS)
-    debug = {}
     day = min_date
     while day <= yesterday:
         key = day.isoformat()
         if key not in history or day > recent_cutoff:
             resp = first if day == yesterday else fetch(day)
             summary = resp.get("wishlist_summary")
-            if day > recent_cutoff:
-                debug[key] = resp
             if summary is not None:
                 history[key] = {
                     "adds": summary.get("wishlist_adds", 0),
@@ -89,15 +86,14 @@ def main() -> None:
                 time.sleep(0.3)
         day += timedelta(days=1)
 
-    (DATA_DIR / "debug.json").write_text(json.dumps(debug, indent=1))
     HISTORY_FILE.write_text(json.dumps(dict(sorted(history.items())), indent=1))
 
     dates = sorted(history)
     if not dates:
         raise SystemExit("No wishlist data available yet.")
-    latest = date.fromisoformat(dates[-1])
+    latest = yesterday  # days with no activity have no entry, so measure from yesterday
     total = sum(net(v) for v in history.values())
-    latest_net = net(history[dates[-1]])
+    latest_net = net(history.get(yesterday.isoformat(), {}))
     week_net = sum(
         net(v) for k, v in history.items() if date.fromisoformat(k) > latest - timedelta(days=7)
     )
