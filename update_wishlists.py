@@ -69,6 +69,7 @@ def main() -> None:
     min_date = date.fromisoformat(first.get("app_min_date", yesterday.isoformat()))
 
     recent_cutoff = yesterday - timedelta(days=REFETCH_DAYS)
+    debug = {}
     day = min_date
     while day <= yesterday:
         key = day.isoformat()
@@ -76,7 +77,7 @@ def main() -> None:
             resp = first if day == yesterday else fetch(day)
             summary = resp.get("wishlist_summary")
             if day > recent_cutoff:
-                print(f"{key}: keys={sorted(resp)} summary={summary}")
+                debug[key] = resp
             if summary is not None:
                 history[key] = {
                     "adds": summary.get("wishlist_adds", 0),
@@ -88,6 +89,7 @@ def main() -> None:
                 time.sleep(0.3)
         day += timedelta(days=1)
 
+    (DATA_DIR / "debug.json").write_text(json.dumps(debug, indent=1))
     HISTORY_FILE.write_text(json.dumps(dict(sorted(history.items())), indent=1))
 
     dates = sorted(history)
