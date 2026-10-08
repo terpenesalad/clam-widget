@@ -24,6 +24,7 @@ APP_ID = os.environ["STEAM_APP_ID"].strip()
 
 DATA_DIR = Path("data")
 HISTORY_FILE = DATA_DIR / "history.json"
+STATE_FILE = DATA_DIR / "state.json"
 OUTPUT_FILE = DATA_DIR / "wishlists.json"
 
 
@@ -68,7 +69,12 @@ def main() -> None:
         )
     min_date = date.fromisoformat(first.get("app_min_date", yesterday.isoformat()))
 
-    recent_cutoff = yesterday - timedelta(days=REFETCH_DAYS)
+    # Once a day (or on request) re-fetch every day, because Steam sometimes
+    # adds late wishlists to older dates. Other runs only re-check the last week.
+    state = json.loads(STATE_FILE.read_text()) if STATE_FILE.exists() else {}
+    today = datetime.now(timezone.utc).date().isoformat()
+    full = os.environ.get("FULL_REFRESH") == "true" or state.get("last_full") != today
+    recent_cutoff = min_date - timedelta(days=1) if full else yesterday - timedelta(days=REFETCH_DAYS)
     day = min_date
     while day <= yesterday:
         key = day.isoformat()
@@ -86,6 +92,9 @@ def main() -> None:
                 time.sleep(0.3)
         day += timedelta(days=1)
 
+    if full:
+        state["last_full"] = today
+        STATE_FILE.write_text(json.dumps(state))
     HISTORY_FILE.write_text(json.dumps(dict(sorted(history.items())), indent=1))
 
     dates = sorted(history)
