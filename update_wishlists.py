@@ -75,6 +75,8 @@ def main() -> None:
         if key not in history or day > recent_cutoff:
             resp = first if day == yesterday else fetch(day)
             summary = resp.get("wishlist_summary")
+            if day > recent_cutoff:
+                print(f"{key}: keys={sorted(resp)} summary={summary}")
             if summary is not None:
                 history[key] = {
                     "adds": summary.get("wishlist_adds", 0),
