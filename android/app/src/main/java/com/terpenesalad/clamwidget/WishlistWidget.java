@@ -24,6 +24,8 @@ import java.net.URL;
 public class WishlistWidget extends AppWidgetProvider {
 
     static final String ACTION_REFRESH = "com.terpenesalad.clamwidget.REFRESH";
+    static final String ACTION_TOGGLE = "com.terpenesalad.clamwidget.TOGGLE";
+    private static final String KEY_HIDDEN = "hidden";
     private static final String PREFS = "wishlists";
     private static final String KEY_JSON = "json";
     private static final int ACCENT = 0xFFF5C04A;
@@ -43,6 +45,14 @@ public class WishlistWidget extends AppWidgetProvider {
         super.onReceive(context, intent);
         if (ACTION_REFRESH.equals(intent.getAction())) {
             refresh(context);
+        } else if (ACTION_TOGGLE.equals(intent.getAction())) {
+            boolean hidden = !prefs(context).getBoolean(KEY_HIDDEN, false);
+            prefs(context).edit().putBoolean(KEY_HIDDEN, hidden).commit();
+            if (hidden) {
+                render(context.getApplicationContext());
+            } else {
+                refresh(context); // show straight away, then fetch the latest numbers
+            }
         }
     }
 
@@ -117,7 +127,14 @@ public class WishlistWidget extends AppWidgetProvider {
         AppWidgetManager manager = AppWidgetManager.getInstance(context);
         int[] ids = manager.getAppWidgetIds(new ComponentName(context, WishlistWidget.class));
         JSONObject data = cached(context);
+        boolean hidden = prefs(context).getBoolean(KEY_HIDDEN, false);
         for (int id : ids) {
+            if (hidden) {
+                RemoteViews logo = new RemoteViews(context.getPackageName(), R.layout.widget_hidden);
+                logo.setOnClickPendingIntent(android.R.id.background, tapIntent(context));
+                manager.updateAppWidget(id, logo);
+                continue;
+            }
             Bundle options = manager.getAppWidgetOptions(id);
             int width = options.getInt(AppWidgetManager.OPTION_APPWIDGET_MIN_WIDTH, 0);
             int height = options.getInt(AppWidgetManager.OPTION_APPWIDGET_MAX_HEIGHT, 0);
@@ -129,7 +146,7 @@ public class WishlistWidget extends AppWidgetProvider {
     }
 
     private static PendingIntent tapIntent(Context context) {
-        Intent tap = new Intent(context, WishlistWidget.class).setAction(ACTION_REFRESH);
+        Intent tap = new Intent(context, WishlistWidget.class).setAction(ACTION_TOGGLE);
         return PendingIntent.getBroadcast(context, 0, tap,
                 PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE);
     }

@@ -47,7 +47,8 @@ GitHub builds the app for you whenever anything in the `android` folder changes.
 3. If Android asks, allow your browser to **install unknown apps**, then tap **Install**.
 4. Long-press your home screen → **Widgets** → **CLAM Wishlists** → drag it out.
 
-Tap the widget any time to refresh it. It also refreshes itself every few hours.
+Tap the widget to hide your numbers behind the CLAM logo; tap again to show them
+and refresh. It also refreshes itself every few hours.
 To update the app later, install the new apk over the top of the old one.
 
 ## Good to know
