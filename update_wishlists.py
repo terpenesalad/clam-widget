@@ -51,6 +51,26 @@ def net(entry: dict) -> int:
     )
 
 
+def country_adds(resp: dict) -> dict:
+    # Wishlist additions per country code for one day (deletes ignored)
+    out = {}
+    for c in resp.get("country_summary") or []:
+        code = (c.get("country_code") or "").upper()
+        adds = (c.get("summary_actions") or {}).get("wishlist_adds", 0)
+        if len(code) == 2 and code.isalpha() and adds > 0:
+            out[code] = out.get(code, 0) + adds
+    return out
+
+
+def top_countries(history: dict, limit: int = 5) -> tuple:
+    totals = {}
+    for entry in history.values():
+        for code, adds in entry.get("countries", {}).items():
+            totals[code] = totals.get(code, 0) + adds
+    ranked = sorted(totals.items(), key=lambda kv: (-kv[1], kv[0]))
+    return [{"code": c, "adds": a} for c, a in ranked[:limit]], len(totals)
+
+
 def signed(n: int) -> str:
     return f"+{n:,}" if n >= 0 else f"{n:,}"
 
@@ -87,6 +107,7 @@ def main() -> None:
                     "deletes": summary.get("wishlist_deletes", 0),
                     "purchases": summary.get("wishlist_purchases", 0),
                     "gifts": summary.get("wishlist_gifts", 0),
+                    "countries": country_adds(resp),
                 }
             if day != yesterday:
                 time.sleep(0.3)
@@ -107,6 +128,8 @@ def main() -> None:
         net(v) for k, v in history.items() if date.fromisoformat(k) > latest - timedelta(days=7)
     )
 
+    countries, country_count = top_countries(history)
+
     output = {
         "title": TITLE,
         "total": total,
@@ -117,6 +140,8 @@ def main() -> None:
         "latest_change_text": signed(latest_net),
         "week_change": week_net,
         "week_change_text": signed(week_net),
+        "top_countries": countries,
+        "country_count": country_count,
         "checked_at": datetime.now(LOCAL_TZ).strftime("%H:%M"),
     }
     OUTPUT_FILE.write_text(json.dumps(output, indent=2))
