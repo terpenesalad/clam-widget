@@ -8,26 +8,25 @@
     android:gravity="center_vertical"
     android:padding="20dp">
 
-    <TextView
+    <ImageView
         android:id="@+id/label"
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="CLAM WISHLISTS"
-        android:textColor="#8C8C8C"
-        android:textSize="11sp"
-        android:letterSpacing="0.18"
-        android:fontFamily="@font/outfit_bold" />
+        android:layout_height="14dp"
+        android:adjustViewBounds="true"
+        android:scaleType="fitStart"
+        android:src="@drawable/clam_logo"
+        android:contentDescription="CLAM" />
 
     <TextView
         android:id="@+id/total"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="2dp"
+        android:layout_marginTop="6dp"
         android:text="—"
         android:textColor="#FFFFFF"
         android:textSize="52sp"
         android:includeFontPadding="false"
-        android:fontFamily="@font/outfit_bold" />
+        android:fontFamily="sans-serif" />
 
     <TextView
         android:id="@+id/change"
@@ -37,5 +36,5 @@
         android:text="tap to refresh"
         android:textColor="#8C8C8C"
         android:textSize="12sp"
-        android:fontFamily="@font/outfit_medium" />
+        android:fontFamily="sans-serif" />
 </LinearLayout>
