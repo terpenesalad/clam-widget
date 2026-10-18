@@ -62,7 +62,7 @@ def country_adds(resp: dict) -> dict:
     return out
 
 
-def top_countries(history: dict, limit: int = 5) -> tuple:
+def top_countries(history: dict, limit: int = 60) -> tuple:
     totals = {}
     for entry in history.values():
         for code, adds in entry.get("countries", {}).items():
