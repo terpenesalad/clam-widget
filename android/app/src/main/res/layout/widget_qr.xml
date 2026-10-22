@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@android:id/background"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@drawable/widget_bg"
+    android:orientation="horizontal"
+    android:paddingStart="12dp"
+    android:paddingEnd="12dp"
+    android:paddingTop="12dp"
+    android:paddingBottom="10dp">
+
+    <LinearLayout
+        android:id="@+id/qr_left"
+        android:layout_width="0dp"
+        android:layout_height="match_parent"
+        android:layout_weight="1"
+        android:orientation="vertical"
+        android:gravity="center">
+
+        <ImageView
+            android:layout_width="wrap_content"
+            android:layout_height="0dp"
+            android:layout_weight="1"
+            android:adjustViewBounds="true"
+            android:scaleType="fitCenter"
+            android:background="@drawable/qr_tile"
+            android:padding="6dp"
+            android:src="@drawable/qr_instagram"
+            android:contentDescription="Instagram QR code" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="7dp"
+            android:text="INSTAGRAM"
+            android:textColor="#8C8C8C"
+            android:textSize="10sp"
+            android:letterSpacing="0.18"
+            android:fontFamily="sans-serif-medium"
+            android:singleLine="true" />
+    </LinearLayout>
+
+    <FrameLayout
+        android:layout_width="1dp"
+        android:layout_height="52dp"
+        android:layout_gravity="center_vertical"
+        android:background="#2E2E2E" />
+
+    <LinearLayout
+        android:id="@+id/qr_right"
+        android:layout_width="0dp"
+        android:layout_height="match_parent"
+        android:layout_weight="1"
+        android:orientation="vertical"
+        android:gravity="center">
+
+        <ImageView
+            android:layout_width="wrap_content"
+            android:layout_height="0dp"
+            android:layout_weight="1"
+            android:adjustViewBounds="true"
+            android:scaleType="fitCenter"
+            android:background="@drawable/qr_tile"
+            android:padding="6dp"
+            android:src="@drawable/qr_steam"
+            android:contentDescription="Steam QR code" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="7dp"
+            android:text="STEAM"
+            android:textColor="#8C8C8C"
+            android:textSize="10sp"
+            android:letterSpacing="0.18"
+            android:fontFamily="sans-serif-medium"
+            android:singleLine="true" />
+    </LinearLayout>
+</LinearLayout>

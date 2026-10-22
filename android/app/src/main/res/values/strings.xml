@@ -3,4 +3,6 @@
     <string name="app_name">CLAM Wishlists</string>
     <string name="widget_desc">Your CLAM Steam wishlist count</string>
     <string name="data_url">https://raw.githubusercontent.com/terpenesalad/clam-widget/main/data/wishlists.json</string>
+    <string name="qr_widget_name">CLAM QR codes</string>
+    <string name="qr_widget_desc">Instagram and Steam QR codes. Tap one to show it full screen.</string>
 </resources>
