@@ -578,5 +578,14 @@
   "countries": {
    "US": 2
   }
+ },
+ "2026-10-24": {
+  "adds": 1,
+  "deletes": 0,
+  "purchases": 0,
+  "gifts": 0,
+  "countries": {
+   "AU": 1
+  }
  }
 }
