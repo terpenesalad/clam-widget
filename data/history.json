@@ -605,5 +605,15 @@
   "countries": {
    "AU": 1
   }
+ },
+ "2026-10-28": {
+  "adds": 2,
+  "deletes": 0,
+  "purchases": 0,
+  "gifts": 0,
+  "countries": {
+   "AU": 1,
+   "TH": 1
+  }
  }
 }
