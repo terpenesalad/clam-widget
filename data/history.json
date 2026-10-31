@@ -615,5 +615,12 @@
    "AU": 1,
    "TH": 1
   }
+ },
+ "2026-10-30": {
+  "adds": 0,
+  "deletes": 1,
+  "purchases": 0,
+  "gifts": 0,
+  "countries": {}
  }
 }
