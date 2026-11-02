@@ -622,5 +622,14 @@
   "purchases": 0,
   "gifts": 0,
   "countries": {}
+ },
+ "2026-11-01": {
+  "adds": 1,
+  "deletes": 0,
+  "purchases": 0,
+  "gifts": 0,
+  "countries": {
+   "FI": 1
+  }
  }
 }
