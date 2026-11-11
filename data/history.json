@@ -631,5 +631,14 @@
   "countries": {
    "FI": 1
   }
+ },
+ "2026-11-10": {
+  "adds": 1,
+  "deletes": 0,
+  "purchases": 0,
+  "gifts": 0,
+  "countries": {
+   "GB": 1
+  }
  }
 }
