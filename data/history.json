@@ -640,5 +640,14 @@
   "countries": {
    "GB": 1
   }
+ },
+ "2026-11-11": {
+  "adds": 1,
+  "deletes": 0,
+  "purchases": 0,
+  "gifts": 0,
+  "countries": {
+   "JP": 1
+  }
  }
 }
