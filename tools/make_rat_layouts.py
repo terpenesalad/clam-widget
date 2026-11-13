@@ -41,7 +41,7 @@ SHELL = """<?xml version="1.0" encoding="utf-8"?>
     android:background="@drawable/widget_bg"
     android:orientation="horizontal"
     android:gravity="center_vertical"
-    android:paddingStart="22dp"
+    android:paddingStart="10dp"
     android:paddingEnd="10dp"
     android:paddingTop="6dp"
     android:paddingBottom="6dp">
@@ -54,9 +54,9 @@ SHELL = """<?xml version="1.0" encoding="utf-8"?>
         <ImageView
             android:layout_width="wrap_content"
             android:layout_height="22dp"
-            android:layout_gravity="center_vertical|start"
+            android:layout_gravity="center"
             android:adjustViewBounds="true"
-            android:scaleType="fitStart"
+            android:scaleType="fitCenter"
             android:src="@drawable/clam_logo"
             android:contentDescription="CLAM" />
     </FrameLayout>
