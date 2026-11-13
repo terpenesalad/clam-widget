@@ -10,27 +10,21 @@ RES = "android/app/src/main/res"
 IDLE_FPS = 20   # idle mode: her default idle plus occasional extras (memory-heavy, so 20fps)
 FPS = 30        # falling asleep, sleeping, waking
 
-frames = {}
+frames = {}  # clip name -> drawable names in frame order (as found on disk)
 for f in os.listdir(f"{RES}/drawable-nodpi"):
-    m = re.match(r"rat_(.+)_(\d+)\.(png|webp)$", f)
+    m = re.match(r"(rat_(.+)_(\d+))\.(png|webp)$", f)
     if m:
-        frames.setdefault(m.group(1), []).append(int(m.group(2)))
+        frames.setdefault(m.group(2), []).append((int(m.group(3)), m.group(1)))
 for k in frames:
-    frames[k].sort()
+    frames[k] = [stem for _, stem in sorted(frames[k])]
 
 def clip(name):
-    return [f"rat_{name}_{i:02d}" for i in frames[name]]
+    return frames[name]
 
 # "idle" is the game's default idle clip (FBXExportClip_0); extras play now and then.
 I, ET, EP, NOD, SN, SH = "idle", "ear_twitch", "ear_perk", "nod", "sneeze", "shake"
 IDLE = [I, ET, NOD, I, EP, SN, I, ET, SH]
 HOLD = 30  # extra copies of a one-shot's last frame (1s) while the app swaps layouts
-
-def fmt(name, i):
-    return f"rat_{name}_{i:03d}" if name == "idle" else f"rat_{name}_{i:02d}"
-
-def clip(name):  # noqa: F811 (idle frames use 3-digit numbers)
-    return [fmt(name, i) for i in frames[name]]
 
 states = {  # name: (frames, fps)
     "widget_rat_idle": (sum((clip(c) for c in IDLE), []), IDLE_FPS),
