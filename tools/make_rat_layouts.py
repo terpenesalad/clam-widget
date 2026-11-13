@@ -7,8 +7,8 @@ Run from the repo root:  python3 tools/make_rat_layouts.py
 import os, re
 
 RES = "android/app/src/main/res"
-FPS = 30
-INTERVAL = round(1000 / FPS)
+IDLE_FPS = 20   # idle mode: her default idle plus occasional extras (memory-heavy, so 20fps)
+FPS = 30        # falling asleep, sleeping, waking
 
 frames = {}
 for f in os.listdir(f"{RES}/drawable-nodpi"):
@@ -21,15 +21,22 @@ for k in frames:
 def clip(name):
     return [f"rat_{name}_{i:02d}" for i in frames[name]]
 
-B, ET, EP, NOD, SN, SH = "breathe", "ear_twitch", "ear_perk", "nod", "sneeze", "shake"
-IDLE = [B, B, ET, B, B, NOD, B, EP, B, B, SN, B, B, SH, B, ET, B, EP, B, B]
+# "idle" is the game's default idle clip (FBXExportClip_0); extras play now and then.
+I, ET, EP, NOD, SN, SH = "idle", "ear_twitch", "ear_perk", "nod", "sneeze", "shake"
+IDLE = [I, ET, NOD, I, EP, SN, I, ET, SH]
 HOLD = 30  # extra copies of a one-shot's last frame (1s) while the app swaps layouts
 
-states = {
-    "widget_rat_idle": sum((clip(c) for c in IDLE), []),
-    "widget_rat_sleep_enter": clip("sleep_enter") + [clip("sleep_enter")[-1]] * HOLD,
-    "widget_rat_sleep": clip("sleep_loop"),
-    "widget_rat_wake": clip("wake") + [clip("wake")[-1]] * HOLD,
+def fmt(name, i):
+    return f"rat_{name}_{i:03d}" if name == "idle" else f"rat_{name}_{i:02d}"
+
+def clip(name):  # noqa: F811 (idle frames use 3-digit numbers)
+    return [fmt(name, i) for i in frames[name]]
+
+states = {  # name: (frames, fps)
+    "widget_rat_idle": (sum((clip(c) for c in IDLE), []), IDLE_FPS),
+    "widget_rat_sleep_enter": (clip("sleep_enter") + [clip("sleep_enter")[-1]] * HOLD, FPS),
+    "widget_rat_sleep": (clip("sleep_loop"), FPS),
+    "widget_rat_wake": (clip("wake") + [clip("wake")[-1]] * HOLD, FPS),
 }
 
 SHELL = """<?xml version="1.0" encoding="utf-8"?>
@@ -75,11 +82,11 @@ SHELL = """<?xml version="1.0" encoding="utf-8"?>
 CHILD = ('        <ImageView android:layout_width="match_parent" android:layout_height="match_parent" '
          'android:scaleType="fitCenter" android:src="@drawable/{0}" />')
 
-for name, seq in states.items():
-    xml = SHELL.replace("{interval}", str(INTERVAL)).replace(
+for name, (seq, fps) in states.items():
+    xml = SHELL.replace("{interval}", str(round(1000 / fps))).replace(
         "{children}", "\n".join(CHILD.format(r) for r in seq))
     open(f"{RES}/layout/{name}.xml", "w").write(xml)
-    print(f"{name}: {len(seq)} frames, {len(set(seq))} unique, {len(seq)/FPS:.1f}s")
+    print(f"{name}: {len(seq)} frames, {len(set(seq))} unique, {len(seq)/fps:.1f}s at {fps}fps")
 
 # durations the app needs to know (ms) for chaining one-shots
 dur = {k: round(len(clip(k)) * 1000 / FPS) for k in ("sleep_enter", "wake")}
