@@ -649,5 +649,15 @@
   "countries": {
    "JP": 1
   }
+ },
+ "2026-11-12": {
+  "adds": 2,
+  "deletes": 0,
+  "purchases": 0,
+  "gifts": 0,
+  "countries": {
+   "CN": 1,
+   "US": 1
+  }
  }
 }
