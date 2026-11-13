@@ -1,0 +1,68 @@
+<!doctype html><html><body style="margin:0;background:transparent">
+<script type="importmap">{"imports":{"three":"./node_modules/three/build/three.module.js","three/addons/":"./node_modules/three/examples/jsm/"}}</script>
+<script type="module">
+import * as THREE from 'three';
+import {GLTFLoader} from 'three/addons/loaders/GLTFLoader.js';
+const W=+new URLSearchParams(location.search).get('w')||480, H=+new URLSearchParams(location.search).get('h')||320;
+const renderer=new THREE.WebGLRenderer({antialias:true,alpha:true,preserveDrawingBuffer:true});
+renderer.setSize(W,H); renderer.setPixelRatio(1); renderer.setClearColor(0x000000,0);
+renderer.outputColorSpace=THREE.SRGBColorSpace; renderer.toneMapping=THREE.ACESFilmicToneMapping; renderer.toneMappingExposure=1.5;
+renderer.shadowMap.enabled=true; renderer.shadowMap.type=THREE.PCFSoftShadowMap;
+document.body.appendChild(renderer.domElement);
+const scene=new THREE.Scene();
+const cam=new THREE.PerspectiveCamera(28,W/H,0.01,100);
+scene.add(new THREE.HemisphereLight(0xfff4e8,0x3a3a3a,2.2));
+const key=new THREE.DirectionalLight(0xfff1e0,3.0); key.position.set(-1.5,2.5,-2.5); scene.add(key);
+const fill=new THREE.DirectionalLight(0xdfe8ff,1.0); fill.position.set(2,1,-1); scene.add(fill);
+const rim=new THREE.DirectionalLight(0xffffff,4.0); rim.position.set(1.5,2.0,3.0); scene.add(rim);
+const sh=new THREE.DirectionalLight(0xffffff,0.0001); sh.position.set(0.05,1,0.05); sh.target.position.set(0,0,0.07); scene.add(sh); scene.add(sh.target);
+sh.castShadow=true; sh.shadow.mapSize.set(1024,1024); sh.shadow.radius=6; sh.shadow.blurSamples=16;
+Object.assign(sh.shadow.camera,{left:-0.3,right:0.3,top:0.3,bottom:-0.3,near:0.1,far:2}); sh.shadow.camera.updateProjectionMatrix();
+const ground=new THREE.Mesh(new THREE.PlaneGeometry(1,1),new THREE.ShadowMaterial({opacity:0.45}));
+ground.rotation.x=-Math.PI/2; ground.receiveShadow=true; scene.add(ground);
+let model, mixer, clips={}, action;
+new GLTFLoader().load('rat.gltf', g=>{
+  model=g.scene; scene.add(model); model.traverse(o=>{if(o.isMesh){o.castShadow=true;o.frustumCulled=false;}});
+  mixer=new THREE.AnimationMixer(model);
+  g.animations.forEach(c=>clips[c.name]=c);
+  addEyes(model);
+  window.ready=true;
+});
+function addEyes(model){
+  // Recreated from RAT.tscn: BoneAttachment3D on Bip01_Head_010 -> EyeAnchor -> spheres.
+  // Godot Transform3D is written row-major (basis rows, then origin).
+  const head=model.getObjectByName('Bip01_Head_010'); if(!head) throw new Error('no head bone');
+  const anchor=new THREE.Group(); head.add(anchor);
+  const lin=(r,g,b)=>new THREE.Color().setRGB(r,g,b,THREE.LinearSRGBColorSpace);
+  const mats={
+    blackpart:new THREE.MeshLambertMaterial({color:lin(0.003,0.003,0.003)}),
+    eyeball:new THREE.MeshLambertMaterial({color:lin(0.0025,0.0021,0.0022)}), // Godot colour scaled down: this rig is lit brighter than the game // specular_mode = disabled
+    pupil:new THREE.MeshStandardMaterial({color:0xffffff,roughness:1,metalness:0}),
+  };
+  const sph=(r,h)=>{const g=new THREE.SphereGeometry(1,48,32); g.scale(r,h/2,r); return g;};
+  const geos={blackpart:sph(0.5,1.0), eyeball:sph(0.48,0.75), pupil:sph(0.05,0.1)};
+  const parts=[
+    ['blackpart',[-0.03621551,0.3791062,0.87032545,0.07278006,-0.86728656,0.38081095,0.94651544,0.081193276,0.0040187836,1.0313921,1.7096758,-1.072938]],
+    ['blackpart',[-0.0063132267,0.16671994,0.935235,0.07148767,-0.9325205,0.1667186,0.9472854,0.071484536,-0.0063486397,1.0697498,1.7357321,1.1103939]],
+    ['eyeball',[-0.39054045,-0.32664272,-0.8020489,0.7754383,0.25983754,-0.48340434,0.3855821,-0.8533979,0.15980421,1.0655899,1.7980151,-1.2322923]],
+    ['eyeball',[-0.33563405,-0.59119695,-0.6635781,0.88635135,-0.274585,-0.20367733,-0.06504756,-0.69107825,0.6485982,1.0067673,1.7804413,-1.2124499]],
+    ['eyeball',[0.3072031,-0.17811087,-0.881137,-0.7794965,0.41104975,-0.35485527,0.44778427,0.8377434,-0.013221946,1.0236578,1.8435264,1.2146673]],
+    ['eyeball',[0.3072031,-0.17811084,-0.8811369,-0.7794965,0.4110498,-0.35485527,0.44778425,0.8377434,-0.013221949,1.0221186,1.8404174,1.2692093]],
+    ['pupil',[-0.19607253,-0.6514508,-0.66307414,0.92668045,-0.0838209,-0.19166994,0.0729306,-0.6863569,0.6527598,1.1328125,1.9135933,-1.4950739]],
+    ['pupil',[0.026746863,0.054020677,-0.9480856,0.85139257,-0.42146266,4.6218843e-06,-0.4206131,-0.84967697,-0.06027958,1.1560364,1.7722583,1.4826895]],
+  ];
+  for(const [kind,t] of parts){
+    const m=new THREE.Mesh(geos[kind],mats[kind]); m.castShadow=true; m.frustumCulled=false;
+    m.matrixAutoUpdate=false;
+    m.matrix.set(t[0],t[1],t[2],t[9], t[3],t[4],t[5],t[10], t[6],t[7],t[8],t[11], 0,0,0,1);
+    anchor.add(m);
+  }
+}
+window.info=()=>{const b=new THREE.Box3().setFromObject(model);return {min:b.min.toArray(),max:b.max.toArray()}};
+window.setCam=(az,el,dist,tx,ty,tz,fov)=>{cam.fov=fov;cam.updateProjectionMatrix();
+  const t=new THREE.Vector3(tx,ty,tz);
+  cam.position.set(t.x+dist*Math.cos(el)*Math.sin(az), t.y+dist*Math.sin(el), t.z+dist*Math.cos(el)*Math.cos(az)); cam.lookAt(t);};
+window.pose=(name,t)=>{ if(!action||action.getClip().name!==name){ mixer.stopAllAction(); action=mixer.clipAction(clips[name]); action.play(); }
+  action.time=t; mixer.update(0); renderer.render(scene,cam); return renderer.domElement.toDataURL('image/png'); };
+window.clipDur=n=>clips[n].duration;
+</script></body></html>
