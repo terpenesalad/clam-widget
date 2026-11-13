@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <integer name="rat_sleep_enter_ms">1500</integer>
+    <integer name="rat_wake_ms">1250</integer>
+</resources>

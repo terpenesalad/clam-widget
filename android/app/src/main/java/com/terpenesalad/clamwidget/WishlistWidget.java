@@ -25,7 +25,12 @@ public class WishlistWidget extends AppWidgetProvider {
 
     static final String ACTION_REFRESH = "com.terpenesalad.clamwidget.REFRESH";
     static final String ACTION_TOGGLE = "com.terpenesalad.clamwidget.TOGGLE";
-    private static final String KEY_HIDDEN = "hidden";
+    private static final String KEY_HIDDEN = "hidden"; // old on/off setting, read once for migration
+    private static final String KEY_MODE = "mode";
+    private static final String KEY_GEN = "mode_gen";
+    // Tap cycle: stats -> rat idling -> rat falls asleep -> rat wakes up -> stats
+    static final String DATA = "data", IDLE = "idle", SLEEP_ENTER = "sleep_enter",
+            SLEEP = "sleep", WAKE = "wake";
     private static final String PREFS = "wishlists";
     private static final String KEY_JSON = "json";
     private static final int ACCENT = 0xFFF5C04A;
@@ -46,14 +51,73 @@ public class WishlistWidget extends AppWidgetProvider {
         if (ACTION_REFRESH.equals(intent.getAction())) {
             refresh(context);
         } else if (ACTION_TOGGLE.equals(intent.getAction())) {
-            boolean hidden = !prefs(context).getBoolean(KEY_HIDDEN, false);
-            prefs(context).edit().putBoolean(KEY_HIDDEN, hidden).commit();
-            if (hidden) {
-                render(context.getApplicationContext());
-            } else {
-                refresh(context); // show straight away, then fetch the latest numbers
-            }
+            toggle(context.getApplicationContext());
         }
+    }
+
+    private void toggle(Context app) {
+        switch (mode(app)) {
+            case DATA:
+                setMode(app, IDLE);
+                render(app);
+                break;
+            case IDLE:
+                // fall asleep, then switch to the sleeping loop once the clip finishes
+                chain(app, SLEEP_ENTER, SLEEP, app.getResources().getInteger(R.integer.rat_sleep_enter_ms), false);
+                break;
+            case SLEEP_ENTER:
+            case SLEEP:
+                // wake up, fetch fresh numbers meanwhile, then show the stats
+                chain(app, WAKE, DATA, app.getResources().getInteger(R.integer.rat_wake_ms), true);
+                break;
+            default: // tapped mid wake-up: skip straight to the stats
+                setMode(app, DATA);
+                render(app);
+        }
+    }
+
+    /** Show a one-shot animation, then move on to the next mode when it ends. */
+    private void chain(Context app, String now, String next, int ms, boolean fetchData) {
+        final int gen = setMode(app, now);
+        render(app);
+        final PendingResult result = goAsync();
+        new Thread(() -> {
+            long start = System.currentTimeMillis();
+            try {
+                if (fetchData) {
+                    try {
+                        String json = fetch(app.getString(R.string.data_url));
+                        new JSONObject(json);
+                        prefs(app).edit().putString(KEY_JSON, json).apply();
+                    } catch (Exception ignored) {
+                        // keep the last good numbers
+                    }
+                }
+                long wait = ms - (System.currentTimeMillis() - start);
+                if (wait > 0) Thread.sleep(wait);
+            } catch (InterruptedException ignored) {
+            } finally {
+                if (prefs(app).getInt(KEY_GEN, 0) == gen) { // not tapped again meanwhile
+                    setMode(app, next);
+                    render(app);
+                }
+                result.finish();
+            }
+        }).start();
+    }
+
+    static String mode(Context context) {
+        SharedPreferences p = prefs(context);
+        String m = p.getString(KEY_MODE, null);
+        if (m == null) m = p.getBoolean(KEY_HIDDEN, false) ? IDLE : DATA;
+        return m;
+    }
+
+    private static int setMode(Context context, String mode) {
+        SharedPreferences p = prefs(context);
+        int gen = p.getInt(KEY_GEN, 0) + 1;
+        p.edit().putString(KEY_MODE, mode).putInt(KEY_GEN, gen).commit();
+        return gen;
     }
 
     private void refresh(Context context) {
@@ -127,12 +191,12 @@ public class WishlistWidget extends AppWidgetProvider {
         AppWidgetManager manager = AppWidgetManager.getInstance(context);
         int[] ids = manager.getAppWidgetIds(new ComponentName(context, WishlistWidget.class));
         JSONObject data = cached(context);
-        boolean hidden = prefs(context).getBoolean(KEY_HIDDEN, false);
+        int ratLayout = ratLayout(mode(context));
         for (int id : ids) {
-            if (hidden) {
-                RemoteViews logo = new RemoteViews(context.getPackageName(), R.layout.widget_hidden);
-                logo.setOnClickPendingIntent(android.R.id.background, tapIntent(context));
-                manager.updateAppWidget(id, logo);
+            if (ratLayout != 0) {
+                RemoteViews rat = new RemoteViews(context.getPackageName(), ratLayout);
+                rat.setOnClickPendingIntent(android.R.id.background, tapIntent(context));
+                manager.updateAppWidget(id, rat);
                 continue;
             }
             Bundle options = manager.getAppWidgetOptions(id);
@@ -142,6 +206,16 @@ public class WishlistWidget extends AppWidgetProvider {
                     ? wide(context, data, width, height)
                     : compact(context, data);
             manager.updateAppWidget(id, views);
+        }
+    }
+
+    private static int ratLayout(String mode) {
+        switch (mode) {
+            case IDLE: return R.layout.widget_rat_idle;
+            case SLEEP_ENTER: return R.layout.widget_rat_sleep_enter;
+            case SLEEP: return R.layout.widget_rat_sleep;
+            case WAKE: return R.layout.widget_rat_wake;
+            default: return 0;
         }
     }
 
