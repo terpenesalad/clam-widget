@@ -1,6 +1,6 @@
 import sys, math, os; sys.path.insert(0,os.path.dirname(__file__))
 from drive import *
-R=sys.argv[1]; OUT=sys.argv[2]; FPS=12
+R=sys.argv[1]; OUT=sys.argv[2]; FPS=30
 loops=["BREATHE","EAR_TWITCH","EAR_PERK","NOD","SNEEZE","SHAKE","SLEEP_LOOP"]
 oneshots=["SLEEP_ENTER","WAKE"]
 os.makedirs(OUT,exist_ok=True)

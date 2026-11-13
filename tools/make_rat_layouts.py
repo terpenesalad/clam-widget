@@ -7,7 +7,7 @@ Run from the repo root:  python3 tools/make_rat_layouts.py
 import os, re
 
 RES = "android/app/src/main/res"
-FPS = 12
+FPS = 30
 INTERVAL = round(1000 / FPS)
 
 frames = {}
@@ -23,7 +23,7 @@ def clip(name):
 
 B, ET, EP, NOD, SN, SH = "breathe", "ear_twitch", "ear_perk", "nod", "sneeze", "shake"
 IDLE = [B, B, ET, B, B, NOD, B, EP, B, B, SN, B, B, SH, B, ET, B, EP, B, B]
-HOLD = 18  # extra copies of a one-shot's last frame while the app swaps layouts
+HOLD = 30  # extra copies of a one-shot's last frame (1s) while the app swaps layouts
 
 states = {
     "widget_rat_idle": sum((clip(c) for c in IDLE), []),
