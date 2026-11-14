@@ -14,7 +14,7 @@ const cam=new THREE.PerspectiveCamera(28,W/H,0.01,100);
 scene.add(new THREE.HemisphereLight(0xfff4e8,0x3a3a3a,2.2));
 const key=new THREE.DirectionalLight(0xfff1e0,3.0); key.position.set(-1.5,2.5,-2.5); scene.add(key);
 const fill=new THREE.DirectionalLight(0xdfe8ff,1.0); fill.position.set(2,1,-1); scene.add(fill);
-const rim=new THREE.DirectionalLight(0xffffff,4.0); rim.position.set(1.5,2.0,3.0); scene.add(rim);
+const rim=new THREE.DirectionalLight(0xffffff,window.RIM??0.6); rim.position.set(1.5,2.0,3.0); scene.add(rim);
 const sh=new THREE.DirectionalLight(0xffffff,0.0001); sh.position.set(0.05,1,0.05); sh.target.position.set(0,0,0.07); scene.add(sh); scene.add(sh.target);
 sh.castShadow=true; sh.shadow.mapSize.set(1024,1024); sh.shadow.radius=6; sh.shadow.blurSamples=16;
 Object.assign(sh.shadow.camera,{left:-0.3,right:0.3,top:0.3,bottom:-0.3,near:0.1,far:2}); sh.shadow.camera.updateProjectionMatrix();
@@ -22,7 +22,9 @@ const ground=new THREE.Mesh(new THREE.PlaneGeometry(1,1),new THREE.ShadowMateria
 ground.rotation.x=-Math.PI/2; ground.receiveShadow=true; scene.add(ground);
 let model, mixer, clips={}, action;
 new GLTFLoader().load(new URLSearchParams(location.search).get('m')||'rat.gltf', g=>{
-  model=g.scene; scene.add(model); model.traverse(o=>{if(o.isMesh){o.castShadow=true;o.frustumCulled=false;}});
+  model=g.scene; scene.add(model); model.traverse(o=>{if(o.isMesh){o.castShadow=true;o.frustumCulled=false;
+    // glTF defaults metalness to 1 when unset, which makes fur shine like metal; fur isn't metallic
+    if(o.material&&o.material.name==='Mouse'){o.material.metalness=0; o.material.roughness=window.FUR_ROUGH??0.85; o.material.color.setScalar(window.FUR_TONE??1.0);}}});
   mixer=new THREE.AnimationMixer(model);
   g.animations.forEach(c=>clips[c.name]=c);
   addEyes(model);

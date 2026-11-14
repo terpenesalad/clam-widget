@@ -15,3 +15,9 @@ are rebuilt in `index.html` → `addEyes()`.
 `recolor.py src.gltf out.gltf 0.8` recolours the paws (below mesh height 0.8, found
 via the foot/hand bone weights) to the tail/ear colour. `to_glb.py out.gltf rat.glb`
 packs it as a GLB. The widget frames are rendered from the recoloured model.
+
+## Fur colour (matte, dark brown)
+The fur material is rendered matte (glTF defaults metalness to 1, which caused a white sheen).
+`darken.py rat.gltf dark.gltf 0.27 1.6 1.8` darkens/warms only the brown fur (tail, pink and
+white fur untouched); run `recolor.py` on its output for the paws, then render from that.
+The full-screen QR screen uses its own 60fps idle frames (`rat_qr_*`, 540px wide).
