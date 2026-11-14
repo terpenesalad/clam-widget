@@ -67,7 +67,7 @@ public class QrActivity extends Activity {
         root.addView(logo, logoLp);
 
         ImageView qr = new ImageView(this);
-        qr.setImageResource(steam ? R.drawable.qr_steam : R.drawable.qr_instagram);
+        qr.setImageResource(steam ? R.drawable.qr_steam_logo : R.drawable.qr_instagram_logo);
         qr.setScaleType(ImageView.ScaleType.FIT_CENTER);
         qr.setPadding(pad, pad, pad, pad);
         GradientDrawable tile = new GradientDrawable();
