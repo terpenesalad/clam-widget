@@ -27,6 +27,8 @@ public class WishlistWidget extends AppWidgetProvider {
     static final String ACTION_TOGGLE = "com.terpenesalad.clamwidget.TOGGLE";
     private static final String KEY_HIDDEN = "hidden"; // old on/off setting, read once for migration
     private static final String KEY_MODE = "mode";
+    private static final String KEY_FETCHED_AT = "fetched_at";
+    private static final String KEY_REFRESHING = "refreshing";
     private static final String KEY_GEN = "mode_gen";
     // Tap cycle: stats -> rat idling -> rat falls asleep -> rat wakes up -> stats
     static final String DATA = "data", IDLE = "idle", SLEEP_ENTER = "sleep_enter",
@@ -88,7 +90,8 @@ public class WishlistWidget extends AppWidgetProvider {
                     try {
                         String json = fetch(app.getString(R.string.data_url));
                         new JSONObject(json);
-                        prefs(app).edit().putString(KEY_JSON, json).apply();
+                        prefs(app).edit().putString(KEY_JSON, json)
+                                .putLong(KEY_FETCHED_AT, System.currentTimeMillis()).apply();
                     } catch (Exception ignored) {
                         // keep the last good numbers
                     }
@@ -122,16 +125,19 @@ public class WishlistWidget extends AppWidgetProvider {
 
     private void refresh(Context context) {
         final Context app = context.getApplicationContext();
+        prefs(app).edit().putLong(KEY_REFRESHING, System.currentTimeMillis()).commit();
         render(app);
         final PendingResult result = goAsync();
         new Thread(() -> {
             try {
                 String json = fetch(app.getString(R.string.data_url));
                 new JSONObject(json); // make sure it's valid before saving
-                prefs(app).edit().putString(KEY_JSON, json).apply();
+                prefs(app).edit().putString(KEY_JSON, json)
+                        .putLong(KEY_FETCHED_AT, System.currentTimeMillis()).apply();
             } catch (Exception ignored) {
                 // keep showing the last good number
             } finally {
+                prefs(app).edit().putLong(KEY_REFRESHING, 0).commit();
                 render(app);
                 result.finish();
             }
@@ -219,6 +225,21 @@ public class WishlistWidget extends AppWidgetProvider {
         }
     }
 
+    private static PendingIntent refreshIntent(Context context) {
+        Intent tap = new Intent(context, WishlistWidget.class).setAction(ACTION_REFRESH);
+        return PendingIntent.getBroadcast(context, 1, tap,
+                PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE);
+    }
+
+    private static String updatedText(Context context) {
+        SharedPreferences p = prefs(context);
+        // "updating…" only while a fetch is recent, so it can't get stuck if the app is killed mid-fetch
+        if (System.currentTimeMillis() - p.getLong(KEY_REFRESHING, 0) < 20000) return "updating…";
+        long t = p.getLong(KEY_FETCHED_AT, 0);
+        if (t == 0) return "";
+        return android.text.format.DateFormat.getTimeFormat(context).format(new java.util.Date(t));
+    }
+
     private static PendingIntent tapIntent(Context context) {
         Intent tap = new Intent(context, WishlistWidget.class).setAction(ACTION_TOGGLE);
         return PendingIntent.getBroadcast(context, 0, tap,
@@ -239,6 +260,8 @@ public class WishlistWidget extends AppWidgetProvider {
         String pkg = context.getPackageName();
         RemoteViews views = new RemoteViews(pkg, R.layout.widget_wide);
         views.setOnClickPendingIntent(android.R.id.background, tapIntent(context));
+        views.setOnClickPendingIntent(R.id.refresh, refreshIntent(context));
+        views.setTextViewText(R.id.updated, updatedText(context));
         views.removeAllViews(R.id.grid);
         if (data == null) {
             views.setTextViewText(R.id.change, "tap to refresh");
@@ -256,7 +279,7 @@ public class WishlistWidget extends AppWidgetProvider {
         // Space left for the grid after padding, header, the big number and divider.
         int bodyHeight = (height > 0 ? height : 116) - 28 - 17;
         int rows = clamp(bodyHeight / CELL_HEIGHT, 2, 8);
-        int numberWidth = total.length() * 27 + 16 + 1 + 8;
+        int numberWidth = Math.max(total.length() * 25, 70) + 16 + 1 + 8; // number or refresh row, whichever is wider
         int gridWidth = width - 36 - numberWidth;
         int cols = clamp(gridWidth / MIN_CELL_WIDTH, 1, 6);
 

@@ -47,19 +47,52 @@
         android:orientation="horizontal"
         android:gravity="center_vertical">
 
-        <TextView
-            android:id="@+id/total"
+        <LinearLayout
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="—"
-            android:textColor="#FFFFFF"
-            android:textSize="48sp"
-            android:includeFontPadding="false"
-            android:singleLine="true" />
+            android:orientation="vertical">
+
+            <TextView
+                android:id="@+id/total"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="—"
+                android:textColor="#FFFFFF"
+                android:textSize="44sp"
+                android:includeFontPadding="false"
+                android:singleLine="true" />
+
+            <LinearLayout
+                android:id="@+id/refresh"
+                android:layout_width="wrap_content"
+                android:layout_height="22dp"
+                android:layout_marginTop="2dp"
+                android:layout_marginStart="-4dp"
+                android:paddingStart="4dp"
+                android:paddingEnd="8dp"
+                android:orientation="horizontal"
+                android:gravity="center_vertical">
+
+                <ImageView
+                    android:layout_width="13dp"
+                    android:layout_height="13dp"
+                    android:src="@drawable/ic_refresh"
+                    android:contentDescription="Refresh" />
+
+                <TextView
+                    android:id="@+id/updated"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="5dp"
+                    android:textColor="#5C5C5C"
+                    android:textSize="10sp"
+                    android:singleLine="true" />
+            </LinearLayout>
+        </LinearLayout>
 
         <FrameLayout
             android:layout_width="1dp"
-            android:layout_height="52dp"
+            android:layout_height="60dp"
             android:layout_marginStart="16dp"
             android:background="#2E2E2E" />
 
