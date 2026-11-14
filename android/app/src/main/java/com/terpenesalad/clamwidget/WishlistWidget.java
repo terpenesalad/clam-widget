@@ -26,6 +26,8 @@ public class WishlistWidget extends AppWidgetProvider {
     static final String ACTION_REFRESH = "com.terpenesalad.clamwidget.REFRESH";
     static final String ACTION_TOGGLE = "com.terpenesalad.clamwidget.TOGGLE";
     static final String ACTION_SHOW = "com.terpenesalad.clamwidget.SHOW";
+    // the refresh button: fetch without redrawing, so the rat's animation keeps playing
+    static final String ACTION_REFRESH_LABEL = "com.terpenesalad.clamwidget.REFRESH_LABEL";
     private static final String KEY_HIDDEN = "hidden"; // old on/off setting, read once for migration
     private static final String KEY_MODE = "mode";
     private static final String KEY_FETCHED_AT = "fetched_at";
@@ -41,7 +43,9 @@ public class WishlistWidget extends AppWidgetProvider {
 
     @Override
     public void onUpdate(Context context, AppWidgetManager manager, int[] ids) {
-        refresh(context);
+        // Android sends this after the app is installed/updated or the widget is reset, and the
+        // widget then has nothing wired up: always redraw fully (with all tap actions) first.
+        refresh(context, true);
     }
 
     @Override
@@ -53,12 +57,14 @@ public class WishlistWidget extends AppWidgetProvider {
     public void onReceive(Context context, Intent intent) {
         super.onReceive(context, intent);
         if (ACTION_REFRESH.equals(intent.getAction())) {
-            refresh(context);
+            refresh(context, true);
+        } else if (ACTION_REFRESH_LABEL.equals(intent.getAction())) {
+            refresh(context, false);
         } else if (ACTION_TOGGLE.equals(intent.getAction())) {
             toggle(context.getApplicationContext());
         } else if (ACTION_SHOW.equals(intent.getAction())) {
             setMode(context.getApplicationContext(), DATA);
-            refresh(context); // show the stats straight away, then fetch the latest
+            refresh(context, true); // show the stats straight away, then fetch the latest
         }
     }
 
@@ -128,10 +134,10 @@ public class WishlistWidget extends AppWidgetProvider {
         return gen;
     }
 
-    private void refresh(Context context) {
+    private void refresh(Context context, boolean full) {
         final Context app = context.getApplicationContext();
         prefs(app).edit().putLong(KEY_REFRESHING, System.currentTimeMillis()).commit();
-        show(app);
+        if (full) render(app); else show(app);
         final PendingResult result = goAsync();
         new Thread(() -> {
             try {
@@ -250,7 +256,7 @@ public class WishlistWidget extends AppWidgetProvider {
     }
 
     private static PendingIntent refreshIntent(Context context) {
-        Intent tap = new Intent(context, WishlistWidget.class).setAction(ACTION_REFRESH);
+        Intent tap = new Intent(context, WishlistWidget.class).setAction(ACTION_REFRESH_LABEL);
         return PendingIntent.getBroadcast(context, 1, tap,
                 PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE);
     }
