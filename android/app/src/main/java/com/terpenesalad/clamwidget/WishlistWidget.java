@@ -126,7 +126,7 @@ public class WishlistWidget extends AppWidgetProvider {
     private void refresh(Context context) {
         final Context app = context.getApplicationContext();
         prefs(app).edit().putLong(KEY_REFRESHING, System.currentTimeMillis()).commit();
-        render(app);
+        show(app);
         final PendingResult result = goAsync();
         new Thread(() -> {
             try {
@@ -138,10 +138,25 @@ public class WishlistWidget extends AppWidgetProvider {
                 // keep showing the last good number
             } finally {
                 prefs(app).edit().putLong(KEY_REFRESHING, 0).commit();
-                render(app);
+                show(app);
                 result.finish();
             }
         }).start();
+    }
+
+    /** Stats view: redraw. Rat view: only update the refresh label, so the animation isn't restarted. */
+    private static void show(Context context) {
+        int ratLayout = ratLayout(mode(context));
+        if (ratLayout == 0) {
+            render(context);
+            return;
+        }
+        AppWidgetManager manager = AppWidgetManager.getInstance(context);
+        for (int id : manager.getAppWidgetIds(new ComponentName(context, WishlistWidget.class))) {
+            RemoteViews label = new RemoteViews(context.getPackageName(), ratLayout);
+            label.setTextViewText(R.id.updated, updatedText(context));
+            manager.partiallyUpdateAppWidget(id, label);
+        }
     }
 
     static SharedPreferences prefs(Context context) {
@@ -202,6 +217,8 @@ public class WishlistWidget extends AppWidgetProvider {
             if (ratLayout != 0) {
                 RemoteViews rat = new RemoteViews(context.getPackageName(), ratLayout);
                 rat.setOnClickPendingIntent(android.R.id.background, tapIntent(context));
+                rat.setOnClickPendingIntent(R.id.refresh, refreshIntent(context));
+                rat.setTextViewText(R.id.updated, updatedText(context));
                 manager.updateAppWidget(id, rat);
                 continue;
             }
@@ -260,8 +277,6 @@ public class WishlistWidget extends AppWidgetProvider {
         String pkg = context.getPackageName();
         RemoteViews views = new RemoteViews(pkg, R.layout.widget_wide);
         views.setOnClickPendingIntent(android.R.id.background, tapIntent(context));
-        views.setOnClickPendingIntent(R.id.refresh, refreshIntent(context));
-        views.setTextViewText(R.id.updated, updatedText(context));
         views.removeAllViews(R.id.grid);
         if (data == null) {
             views.setTextViewText(R.id.change, "tap to refresh");
@@ -279,7 +294,7 @@ public class WishlistWidget extends AppWidgetProvider {
         // Space left for the grid after padding, header, the big number and divider.
         int bodyHeight = (height > 0 ? height : 116) - 28 - 17;
         int rows = clamp(bodyHeight / CELL_HEIGHT, 2, 8);
-        int numberWidth = Math.max(total.length() * 25, 70) + 16 + 1 + 8; // number or refresh row, whichever is wider
+        int numberWidth = total.length() * 27 + 16 + 1 + 8;
         int gridWidth = width - 36 - numberWidth;
         int cols = clamp(gridWidth / MIN_CELL_WIDTH, 1, 6);
 
