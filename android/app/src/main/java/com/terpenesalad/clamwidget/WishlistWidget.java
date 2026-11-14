@@ -25,12 +25,14 @@ public class WishlistWidget extends AppWidgetProvider {
 
     static final String ACTION_REFRESH = "com.terpenesalad.clamwidget.REFRESH";
     static final String ACTION_TOGGLE = "com.terpenesalad.clamwidget.TOGGLE";
+    static final String ACTION_SHOW = "com.terpenesalad.clamwidget.SHOW";
     private static final String KEY_HIDDEN = "hidden"; // old on/off setting, read once for migration
     private static final String KEY_MODE = "mode";
     private static final String KEY_FETCHED_AT = "fetched_at";
     private static final String KEY_REFRESHING = "refreshing";
     private static final String KEY_GEN = "mode_gen";
-    // Tap cycle: stats -> rat idling -> rat falls asleep -> rat wakes up -> stats
+    // Tapping the stats shows the rat. Tapping the rat puts her to sleep / wakes her up.
+    // The eye button under CLAM shows the stats again.
     static final String DATA = "data", IDLE = "idle", SLEEP_ENTER = "sleep_enter",
             SLEEP = "sleep", WAKE = "wake";
     private static final String PREFS = "wishlists";
@@ -54,6 +56,9 @@ public class WishlistWidget extends AppWidgetProvider {
             refresh(context);
         } else if (ACTION_TOGGLE.equals(intent.getAction())) {
             toggle(context.getApplicationContext());
+        } else if (ACTION_SHOW.equals(intent.getAction())) {
+            setMode(context.getApplicationContext(), DATA);
+            refresh(context); // show the stats straight away, then fetch the latest
         }
     }
 
@@ -69,11 +74,11 @@ public class WishlistWidget extends AppWidgetProvider {
                 break;
             case SLEEP_ENTER:
             case SLEEP:
-                // wake up, fetch fresh numbers meanwhile, then show the stats
-                chain(app, WAKE, DATA, app.getResources().getInteger(R.integer.rat_wake_ms), true);
+                // wake up, then carry on idling
+                chain(app, WAKE, IDLE, app.getResources().getInteger(R.integer.rat_wake_ms), false);
                 break;
-            default: // tapped mid wake-up: skip straight to the stats
-                setMode(app, DATA);
+            default: // tapped mid wake-up: skip straight to idling
+                setMode(app, IDLE);
                 render(app);
         }
     }
@@ -218,6 +223,7 @@ public class WishlistWidget extends AppWidgetProvider {
                 RemoteViews rat = new RemoteViews(context.getPackageName(), ratLayout);
                 rat.setOnClickPendingIntent(android.R.id.background, tapIntent(context));
                 rat.setOnClickPendingIntent(R.id.refresh, refreshIntent(context));
+                rat.setOnClickPendingIntent(R.id.show_stats, showIntent(context));
                 rat.setTextViewText(R.id.updated, updatedText(context));
                 manager.updateAppWidget(id, rat);
                 continue;
@@ -245,6 +251,12 @@ public class WishlistWidget extends AppWidgetProvider {
     private static PendingIntent refreshIntent(Context context) {
         Intent tap = new Intent(context, WishlistWidget.class).setAction(ACTION_REFRESH);
         return PendingIntent.getBroadcast(context, 1, tap,
+                PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE);
+    }
+
+    private static PendingIntent showIntent(Context context) {
+        Intent tap = new Intent(context, WishlistWidget.class).setAction(ACTION_SHOW);
+        return PendingIntent.getBroadcast(context, 2, tap,
                 PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE);
     }
 

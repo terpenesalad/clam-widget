@@ -63,29 +63,51 @@ SHELL = """<?xml version="1.0" encoding="utf-8"?>
             android:contentDescription="CLAM" />
 
         <LinearLayout
-            android:id="@+id/refresh"
             android:layout_width="wrap_content"
             android:layout_height="26dp"
             android:layout_marginTop="4dp"
-            android:paddingStart="8dp"
-            android:paddingEnd="8dp"
             android:orientation="horizontal"
             android:gravity="center_vertical">
 
-            <ImageView
-                android:layout_width="12dp"
-                android:layout_height="12dp"
-                android:src="@drawable/ic_refresh"
-                android:contentDescription="Refresh" />
-
-            <TextView
-                android:id="@+id/updated"
+            <LinearLayout
+                android:id="@+id/refresh"
                 android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="5dp"
-                android:textColor="#5C5C5C"
-                android:textSize="10sp"
-                android:singleLine="true" />
+                android:layout_height="match_parent"
+                android:paddingStart="8dp"
+                android:paddingEnd="8dp"
+                android:orientation="horizontal"
+                android:gravity="center_vertical">
+
+                <ImageView
+                    android:layout_width="12dp"
+                    android:layout_height="12dp"
+                    android:src="@drawable/ic_refresh"
+                    android:contentDescription="Refresh" />
+
+                <TextView
+                    android:id="@+id/updated"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="5dp"
+                    android:textColor="#5C5C5C"
+                    android:textSize="10sp"
+                    android:singleLine="true" />
+            </LinearLayout>
+
+            <FrameLayout
+                android:id="@+id/show_stats"
+                android:layout_width="30dp"
+                android:layout_height="match_parent"
+                android:paddingStart="8dp"
+                android:paddingEnd="8dp">
+
+                <ImageView
+                    android:layout_width="14dp"
+                    android:layout_height="14dp"
+                    android:layout_gravity="center"
+                    android:src="@drawable/ic_eye"
+                    android:contentDescription="Show stats" />
+            </FrameLayout>
         </LinearLayout>
     </LinearLayout>
 

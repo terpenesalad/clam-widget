@@ -31,7 +31,7 @@ public class MainActivity extends Activity {
 
         TextView body = new TextView(this);
         body.setText("To add the widget: long-press your home screen, tap Widgets, "
-                + "and find CLAM Wishlists.\n\nTap the widget to hide your numbers behind the CLAM logo. Tap again to show them and refresh.");
+                + "and find CLAM Wishlists.\n\nTap your stats to see the rat. Tap the rat to put her to sleep or wake her up. Tap the eye under CLAM to see your stats again, or the refresh arrow to update them.");
         body.setTextColor(Color.parseColor("#8C8C8C"));
         body.setTextSize(15);
         body.setGravity(Gravity.CENTER);
