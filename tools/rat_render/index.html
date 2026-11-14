@@ -21,7 +21,7 @@ Object.assign(sh.shadow.camera,{left:-0.3,right:0.3,top:0.3,bottom:-0.3,near:0.1
 const ground=new THREE.Mesh(new THREE.PlaneGeometry(1,1),new THREE.ShadowMaterial({opacity:0.45}));
 ground.rotation.x=-Math.PI/2; ground.receiveShadow=true; scene.add(ground);
 let model, mixer, clips={}, action;
-new GLTFLoader().load('rat.gltf', g=>{
+new GLTFLoader().load(new URLSearchParams(location.search).get('m')||'rat.gltf', g=>{
   model=g.scene; scene.add(model); model.traverse(o=>{if(o.isMesh){o.castShadow=true;o.frustumCulled=false;}});
   mixer=new THREE.AnimationMixer(model);
   g.animations.forEach(c=>clips[c.name]=c);

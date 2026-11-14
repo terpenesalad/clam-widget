@@ -10,3 +10,8 @@ are rebuilt in `index.html` → `addEyes()`.
    (crop box 313,277 → 865,582 on the 1200×780 renders). Idle mode clips render at 20fps
    with `render_one.py . raw20 FBXExportClip_0 idle 20` (and the same for each extra).
 4. `python3 tools/make_rat_layouts.py` from the repo root.
+
+## Paw colour
+`recolor.py src.gltf out.gltf 0.8` recolours the paws (below mesh height 0.8, found
+via the foot/hand bone weights) to the tail/ear colour. `to_glb.py out.gltf rat.glb`
+packs it as a GLB. The widget frames are rendered from the recoloured model.
