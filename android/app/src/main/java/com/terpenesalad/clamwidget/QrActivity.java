@@ -67,7 +67,7 @@ public class QrActivity extends Activity {
         root.addView(logo, logoLp);
 
         ImageView qr = new ImageView(this);
-        qr.setImageResource(steam ? R.drawable.qr_steam_logo : R.drawable.qr_instagram_logo);
+        qr.setImageResource(steam ? R.drawable.qr_steam : R.drawable.qr_instagram);
         qr.setScaleType(ImageView.ScaleType.FIT_CENTER);
         qr.setPadding(pad, pad, pad, pad);
         GradientDrawable tile = new GradientDrawable();
@@ -99,10 +99,13 @@ public class QrActivity extends Activity {
         rat = new ImageView(this);
         rat.setScaleType(ImageView.ScaleType.FIT_CENTER);
         rat.setContentDescription("CLAM the rat");
-        int ratWidth = (int) (screen * 0.7f);
+        int ratWidth = (int) (screen * 0.95f);
         LinearLayout.LayoutParams ratLp = new LinearLayout.LayoutParams(ratWidth, ratWidth * 199 / 360);
-        ratLp.topMargin = dp(20);
+        ratLp.topMargin = dp(12);
         root.addView(rat, ratLp);
+        // her body sits ~32% across the frame (the tail fills the rest), so shift her right to
+        // centre the body; the tail runs off the edge of the screen
+        rat.setTranslationX(ratWidth * (0.5f - 0.32f));
         if (frames.length > 0) rat.setImageResource(frames[0]);
 
         TextView hint = text("Tap anywhere to close", 12, "#5C5C5C");

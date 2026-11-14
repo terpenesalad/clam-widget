@@ -35,7 +35,7 @@ function addEyes(model){
   const anchor=new THREE.Group(); head.add(anchor);
   const lin=(r,g,b)=>new THREE.Color().setRGB(r,g,b,THREE.LinearSRGBColorSpace);
   const mats={
-    blackpart:new THREE.MeshLambertMaterial({color:lin(0.003,0.003,0.003)}),
+    blackpart:new THREE.MeshLambertMaterial({color:lin(0.13,0.36,0.52)}), // sky blue (eyes.png in the game), deepened because this rig is lit brightly
     eyeball:new THREE.MeshLambertMaterial({color:lin(0.0025,0.0021,0.0022)}), // Godot colour scaled down: this rig is lit brighter than the game // specular_mode = disabled
     pupil:new THREE.MeshStandardMaterial({color:0xffffff,roughness:1,metalness:0}),
   };
