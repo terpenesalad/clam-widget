@@ -222,6 +222,7 @@ public class WishlistWidget extends AppWidgetProvider {
             if (ratLayout != 0) {
                 RemoteViews rat = new RemoteViews(context.getPackageName(), ratLayout);
                 rat.setOnClickPendingIntent(android.R.id.background, tapIntent(context));
+                rat.setOnClickPendingIntent(R.id.rat, tapIntent(context)); // tapping her: sleep / wake
                 rat.setOnClickPendingIntent(R.id.refresh, refreshIntent(context));
                 rat.setOnClickPendingIntent(R.id.show_stats, showIntent(context));
                 rat.setTextViewText(R.id.updated, updatedText(context));

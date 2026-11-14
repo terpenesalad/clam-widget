@@ -112,6 +112,7 @@ SHELL = """<?xml version="1.0" encoding="utf-8"?>
     </LinearLayout>
 
     <ViewFlipper
+        android:id="@+id/rat"
         android:layout_width="0dp"
         android:layout_height="match_parent"
         android:layout_weight="1.25"
