@@ -17,6 +17,10 @@ import android.widget.TextView;
  *  idling below. Tap anywhere to close. */
 public class QrActivity extends Activity {
 
+    static final String EXTRA_WHICH = "which";
+    static final String INSTAGRAM = "instagram";
+    static final String STEAM = "steam";
+
     // Full-screen idle: its own 60fps frames (rat_qr_*), picked by elapsed time on every screen refresh.
     private static final int FPS = 60;
     private ImageView rat;
