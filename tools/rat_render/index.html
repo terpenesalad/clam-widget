@@ -53,18 +53,38 @@ function addEyes(model){
     ['pupil',[-0.19607253,-0.6514508,-0.66307414,0.92668045,-0.0838209,-0.19166994,0.0729306,-0.6863569,0.6527598,1.1328125,1.9135933,-1.4950739]],
     ['pupil',[0.026746863,0.054020677,-0.9480856,0.85139257,-0.42146266,4.6218843e-06,-0.4206131,-0.84967697,-0.06027958,1.1560364,1.7722583,1.4826895]],
   ];
+  // Blinking: squash each eye vertically about the centre of its blue part (BLACKPART),
+  // so the fur behind shows through like a closing eyelid. 0 = open, 1 = shut.
+  model.updateMatrixWorld(true);
+  const q=new THREE.Quaternion(); anchor.getWorldQuaternion(q);
+  const up=new THREE.Vector3(0,1,0).applyQuaternion(q.clone().invert()).normalize();   // world up, in eye space
+  const centres={}; for(const [kind,t] of parts) if(kind==='blackpart') centres[Math.sign(t[11])]=new THREE.Vector3(t[9],t[10],t[11]);
+  const eyeMeshes=[];
   for(const [kind,t] of parts){
     const m=new THREE.Mesh(geos[kind],mats[kind]); m.castShadow=true; m.frustumCulled=false;
     m.matrixAutoUpdate=false;
-    m.matrix.set(t[0],t[1],t[2],t[9], t[3],t[4],t[5],t[10], t[6],t[7],t[8],t[11], 0,0,0,1);
-    anchor.add(m);
+    const base=new THREE.Matrix4().set(t[0],t[1],t[2],t[9], t[3],t[4],t[5],t[10], t[6],t[7],t[8],t[11], 0,0,0,1);
+    m.matrix.copy(base); anchor.add(m); eyeMeshes.push({m,base,kind,c:centres[Math.sign(t[11])]});
   }
+  const rot=new THREE.Matrix4().makeBasis(...(()=>{const a=new THREE.Vector3(1,0,0); if(Math.abs(a.dot(up))>0.9) a.set(0,0,1);
+      const x=a.sub(up.clone().multiplyScalar(a.dot(up))).normalize(); const z=new THREE.Vector3().crossVectors(x,up); return [x,up,z];})());
+  const rotInv=rot.clone().invert();
+  window.setBlink=(amount)=>{
+    for(const e of eyeMeshes){
+      // the blue closes a little ahead of the black, so a shut eye is a dark slit
+      const sy = e.kind==='blackpart' ? Math.max(0,1-amount*1.3) : Math.max(0.06,1-amount);
+      e.m.visible = sy>0.01;
+      const M=new THREE.Matrix4().makeTranslation(e.c.x,e.c.y,e.c.z).multiply(rot).multiply(new THREE.Matrix4().makeScale(1,sy,1))
+        .multiply(rotInv).multiply(new THREE.Matrix4().makeTranslation(-e.c.x,-e.c.y,-e.c.z));
+      e.m.matrix.copy(M.multiply(e.base));
+    }
+  };
 }
 window.info=()=>{const b=new THREE.Box3().setFromObject(model);return {min:b.min.toArray(),max:b.max.toArray()}};
 window.setCam=(az,el,dist,tx,ty,tz,fov)=>{cam.fov=fov;cam.updateProjectionMatrix();
   const t=new THREE.Vector3(tx,ty,tz);
   cam.position.set(t.x+dist*Math.cos(el)*Math.sin(az), t.y+dist*Math.sin(el), t.z+dist*Math.cos(el)*Math.cos(az)); cam.lookAt(t);};
-window.pose=(name,t)=>{ if(!action||action.getClip().name!==name){ mixer.stopAllAction(); action=mixer.clipAction(clips[name]); action.play(); }
+window.pose=(name,t,blink)=>{ if(window.setBlink) window.setBlink(blink||0); if(!action||action.getClip().name!==name){ mixer.stopAllAction(); action=mixer.clipAction(clips[name]); action.play(); }
   action.time=t; mixer.update(0); renderer.render(scene,cam); return renderer.domElement.toDataURL('image/png'); };
 window.clipDur=n=>clips[n].duration;
 </script></body></html>
