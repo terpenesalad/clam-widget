@@ -52,7 +52,8 @@ SHELL = """<?xml version="1.0" encoding="utf-8"?>
         android:layout_height="match_parent"
         android:layout_weight="1"
         android:orientation="vertical"
-        android:gravity="center">
+        android:gravity="center"
+        android:paddingTop="16dp">
 
         <ImageView
             android:layout_width="wrap_content"
