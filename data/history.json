@@ -668,5 +668,14 @@
   "countries": {
    "US": 1
   }
+ },
+ "2026-11-17": {
+  "adds": 1,
+  "deletes": 0,
+  "purchases": 0,
+  "gifts": 0,
+  "countries": {
+   "RO": 1
+  }
  }
 }
