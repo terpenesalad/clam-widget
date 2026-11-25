@@ -1,11 +1,11 @@
 {
   "title": "CLAM WISHLISTS",
-  "total": 125,
-  "total_text": "125",
-  "latest_day": "2026-11-23",
-  "latest_day_text": "23 Nov",
-  "latest_change": 0,
-  "latest_change_text": "+0",
+  "total": 126,
+  "total_text": "126",
+  "latest_day": "2026-11-24",
+  "latest_day_text": "24 Nov",
+  "latest_change": 1,
+  "latest_change_text": "+1",
   "week_change": 3,
   "week_change_text": "+3",
   "top_countries": [
@@ -19,7 +19,7 @@
     },
     {
       "code": "GB",
-      "adds": 12
+      "adds": 13
     },
     {
       "code": "DE",
@@ -147,5 +147,5 @@
     }
   ],
   "country_count": 34,
-  "checked_at": "08:14"
+  "checked_at": "15:16"
 }
