@@ -2,16 +2,16 @@
   "title": "CLAM WISHLISTS",
   "total": 126,
   "total_text": "126",
-  "latest_day": "2026-11-24",
-  "latest_day_text": "24 Nov",
-  "latest_change": 1,
-  "latest_change_text": "+1",
+  "latest_day": "2026-11-25",
+  "latest_day_text": "25 Nov",
+  "latest_change": 0,
+  "latest_change_text": "+0",
   "week_change": 3,
   "week_change_text": "+3",
   "top_countries": [
     {
       "code": "US",
-      "adds": 35
+      "adds": 37
     },
     {
       "code": "AU",
@@ -147,5 +147,5 @@
     }
   ],
   "country_count": 34,
-  "checked_at": "10:39"
+  "checked_at": "19:23"
 }

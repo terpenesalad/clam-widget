@@ -704,5 +704,14 @@
   "countries": {
    "GB": 1
   }
+ },
+ "2026-11-25": {
+  "adds": 2,
+  "deletes": 2,
+  "purchases": 0,
+  "gifts": 0,
+  "countries": {
+   "US": 2
+  }
  }
 }
